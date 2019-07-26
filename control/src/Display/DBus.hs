@@ -26,13 +26,14 @@ module Display.DBus
 import Control.Concurrent (threadDelay)
 import Control.Exception (bracket)
 import Control.Monad (forever)
-import qualified DBus as DBus
+import qualified DBus
 import qualified DBus.Client as DBus
 import qualified Data.ByteString.Char8 as ByteString
 import Data.Word (Word32)
 
 --------------------------------------------------------------------------------
 import Display.Message
+import Display.Timer (pomodoro)
 
 --------------------------------------------------------------------------------
 run :: (Message -> IO ()) -> IO ()
@@ -58,7 +59,7 @@ run handler =
 
     startMessage :: [DBus.Variant] -> IO ()
     startMessage [t, m] = do
-      let timer = timerStart <$> (DBus.fromVariant t :: Maybe Word32)
+      let timer = TimerStart . pomodoro <$> (DBus.fromVariant t :: Maybe Word32)
           msg   = TimerMessage . ByteString.pack <$> DBus.fromVariant m
 
       maybe (pure ()) handler timer

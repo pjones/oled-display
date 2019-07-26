@@ -45,16 +45,16 @@ import qualified Data.ByteString.Builder as Builder
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as ByteString
 import Data.Char (isPrint, isAscii)
-import Data.Time.Calendar (Day(..))
-import Data.Time.Clock (UTCTime(..), NominalDiffTime, diffUTCTime, addUTCTime, getCurrentTime)
-import Data.Time.Format (formatTime, defaultTimeLocale)
-import System.IO (Handle, hClose)
+import Data.Time.Clock (UTCTime(..), getCurrentTime)
+import System.IO (Handle, hClose, hFlush)
 import System.Serial (openSerial)
 import qualified System.Serial as Serial
 
 --------------------------------------------------------------------------------
 -- Project Imports:
 import Display.Message
+import Display.Timer (Timer)
+import qualified Display.Timer as Timer
 
 --------------------------------------------------------------------------------
 -- | Information about what the screen is displaying.
@@ -62,7 +62,7 @@ data Screen
   = Blank
     -- ^ Not showing anything on the display.
 
-  | Timer UTCTime
+  | Timer Timer
     -- ^ Display a timer that started at the given time.
 
   | Chars ByteString
@@ -135,24 +135,19 @@ draw now = do
 
 --------------------------------------------------------------------------------
 -- | Commands to draw a timer relative to the current time.
-drawTimer :: UTCTime -> UTCTime -> [Command]
-drawTimer start now =
+drawTimer :: Timer -> UTCTime -> [Command]
+drawTimer timer now =
     drawChars formatted ++ [Flash flash]
   where
-    timeLeft :: NominalDiffTime
-    timeLeft = pomodoro - diffUTCTime now start
-
-    pomodoro :: NominalDiffTime
-    pomodoro = 25 * 60
+    formatted :: ByteString
+    formatted = Timer.render timer now
 
     flash :: Int
-    flash = if timeLeft > 120 then 0 else 500
-
-    formatted :: ByteString
-    formatted = ByteString.pack $
-      formatTime defaultTimeLocale "%M:%S" $
-      {- Next bit only needed for older version of the time package -}
-      addUTCTime timeLeft (UTCTime (ModifiedJulianDay 0) (fromIntegral (0::Int)))
+    flash =
+      case Timer.remaining timer now of
+        Timer.Negative _             -> 250
+        Timer.Positive n | n > 120   -> 0
+                         | otherwise -> 500
 
 --------------------------------------------------------------------------------
 -- | Commands to draw arbitrary text.
@@ -171,7 +166,7 @@ drawChars chars =
 --------------------------------------------------------------------------------
 -- | Send a command to the arduino.
 send :: Handle -> Command -> IO ()
-send h c = Builder.hPutBuilder h (chars <> "\n")
+send h c = Builder.hPutBuilder h (chars <> "\n") >> hFlush h
   where
     chars :: Builder
     chars = case c of
@@ -245,7 +240,7 @@ run = do
     t1 :: TQueue Command -> IO ()
     t1 q = do
       let open = openSerial "/dev/ttyACM0"
-                            Serial.B9600
+                            Serial.B38400
                             8
                             Serial.One
                             Serial.NoParity

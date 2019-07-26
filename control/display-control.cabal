@@ -49,6 +49,7 @@ library
    Display.Arduino
    Display.DBus
    Display.Message
+   Display.Timer
 
 --------------------------------------------------------------------------------
 executable display-control

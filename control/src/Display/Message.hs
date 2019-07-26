@@ -16,19 +16,20 @@ License: BSD-2-Clause
 -}
 module Display.Message
   ( Message(..)
-  , timerStart
   ) where
 
 --------------------------------------------------------------------------------
 -- Library Imports:
 import Data.ByteString.Char8 (ByteString)
-import Data.Time.Clock (UTCTime)
-import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+
+--------------------------------------------------------------------------------
+-- Project Imports:
+import Display.Timer (Timer)
 
 --------------------------------------------------------------------------------
 data Message
-  = TimerStart UTCTime
-    -- ^ The timer started at the given time.
+  = TimerStart Timer
+    -- ^ Start a new timer.
 
   | TimerStop
     -- ^ The timer stopped.
@@ -37,8 +38,3 @@ data Message
     -- ^ The message associated with the current timer changed.
 
   deriving Show
-
---------------------------------------------------------------------------------
--- | Start the timer given the number of seconds since the Unix epoch.
-timerStart :: (Real a) => a -> Message
-timerStart = TimerStart . posixSecondsToUTCTime . realToFrac
