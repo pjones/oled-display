@@ -124,12 +124,9 @@ void parse_command(String command) {
 
   case '\0': /* Unknown command */
   default:
-    Serial.print("ERR: ");
-    Serial.println(command);
+    Serial.println("ERR");
     return;
   }
 
-  Serial.print("ACK: ");
-  Serial.print(command_code);
-  Serial.println(command);
+  Serial.println("ACK");
 }

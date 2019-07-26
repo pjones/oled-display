@@ -1,10 +1,17 @@
-{ mkDerivation, async, base, bytestring, serial, stdenv }:
+{ mkDerivation, async, base, bytestring, dbus, lens, monad-stm, mtl
+, serial, stdenv, stm, time
+}:
 mkDerivation {
   pname = "display-control";
   version = "0.1.0.0";
   src = ./.;
-  isLibrary = false;
+  isLibrary = true;
   isExecutable = true;
-  executableHaskellDepends = [ async base bytestring serial ];
+  libraryHaskellDepends = [
+    async base bytestring dbus lens monad-stm mtl serial stm time
+  ];
+  executableHaskellDepends = [
+    async base bytestring dbus lens monad-stm mtl serial stm time
+  ];
   license = stdenv.lib.licenses.bsd2;
 }
