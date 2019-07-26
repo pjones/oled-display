@@ -16,6 +16,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 char current_text[256] = "\0";
 uint8_t current_text_size = 2;
 uint32_t current_flash    = 0;
+uint32_t next_display_change = 0;
+bool current_display_mode = true;
+bool text_changed = false;
 
 /******************************************************************************/
 void draw(void);
@@ -25,7 +28,7 @@ void parse_command(uint8_t command);
 
 /******************************************************************************/
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(38400);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
@@ -45,13 +48,22 @@ void loop() {
   }
 
   if (current_flash > 0) {
-    display.clearDisplay();
-    display.display();
-    delay(current_flash);
+    if (millis() >= next_display_change) {
+      current_display_mode = !current_display_mode;
+      next_display_change = millis() + current_flash;
+    }
   }
 
-  draw();
-  if (current_flash > 0) delay(current_flash);
+  if (current_display_mode) {
+    if (text_changed) {
+      draw();
+      text_changed = false;
+    }
+  } else {
+    display.clearDisplay();
+    display.display();
+    text_changed = true;
+  }
 }
 
 /******************************************************************************/
@@ -99,7 +111,18 @@ void parse_command(String command) {
     break;
 
   case 'F': /* Flash the display */
-    current_flash = command.toInt();
+    {
+      uint32_t previous = current_flash;
+      current_flash = command.toInt();
+
+      if (current_flash != previous && current_flash > 0) {
+        current_display_mode = false;
+        next_display_change = millis() + current_flash;
+      } else if (current_flash == 0) {
+        current_display_mode = true;
+        next_display_change = 0;
+      }
+    }
     break;
 
   case 'R': /* Reset all options */
@@ -117,16 +140,21 @@ void parse_command(String command) {
 
   case 'T': /* Text to diplay */
     {
-      size_t n = min(sizeof(current_text), command.length());
+      size_t n = min(sizeof(current_text) - 1, command.length());
       strncpy(current_text, command.c_str(), n);
+      current_text[n] = '\0';
+      text_changed = true;
     }
     break;
 
   case '\0': /* Unknown command */
   default:
-    Serial.println("ERR");
+    Serial.print("ERR: ");
+    Serial.println(command_code);
+    Serial.flush();
     return;
   }
 
   Serial.println("ACK");
+  Serial.flush();
 }
