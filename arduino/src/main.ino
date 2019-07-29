@@ -4,69 +4,21 @@
 #include <Adafruit_SSD1306.h>
 #include <string.h>
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 32 // OLED display height, in pixels
-
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+/******************************************************************************/
+Adafruit_SSD1306 display(128, 32, &Wire, -1);
 
 /******************************************************************************/
 // Current state:
-char current_text[256] = "\0";
+char current_text[256] = "";
 uint8_t current_text_size = 2;
 uint32_t current_flash    = 0;
 uint32_t next_display_change = 0;
 bool current_display_mode = true;
 bool text_changed = false;
+String command = String();
 
 /******************************************************************************/
-void draw(void);
-void clear(void);
-void reset(void);
-void parse_command(uint8_t command);
-
-/******************************************************************************/
-void setup() {
-  Serial.begin(38400);
-
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;); // Don't proceed, loop forever
-  }
-
-  Serial.println("READY");
-}
-
-/******************************************************************************/
-void loop() {
-  if (Serial.available() >= 2) {
-    String command = Serial.readStringUntil('\n');
-    command.trim();
-    parse_command(command);
-  }
-
-  if (current_flash > 0) {
-    if (millis() >= next_display_change) {
-      current_display_mode = !current_display_mode;
-      next_display_change = millis() + current_flash;
-    }
-  }
-
-  if (current_display_mode) {
-    if (text_changed) {
-      draw();
-      text_changed = false;
-    }
-  } else {
-    display.clearDisplay();
-    display.display();
-    text_changed = true;
-  }
-}
-
-/******************************************************************************/
+// Draw the current text buffer to the screen.
 void draw() {
   display.clearDisplay();
   display.setTextSize(current_text_size);
@@ -83,6 +35,7 @@ void draw() {
 }
 
 /******************************************************************************/
+// Clear the text buffer and the screen.
 void clear() {
   current_text[0] = '\0';
   display.clearDisplay();
@@ -90,20 +43,28 @@ void clear() {
 }
 
 /******************************************************************************/
+// Reset all state.
 void reset() {
   clear();
   current_text_size = 2;
   current_flash = 0;
+  next_display_change = 0;
+  current_display_mode = true;
+  text_changed = false;
 }
 
 /******************************************************************************/
-void parse_command(String command) {
-  char command_code = '\0';
+void parse_command() {
+  char command_code;
+  bool result = true;
 
-  if (command.length() >= 1) {
+  if (command.length() == 1) {
+    command_code = command.charAt(0);
+    command = F("");
+  } else if (command.length() >= 1) {
     command_code = command.charAt(0);
     command = command.substring(1);
-  }
+  } else return;
 
   switch (command_code) {
   case 'C': /* Clear the display */
@@ -143,18 +104,63 @@ void parse_command(String command) {
       size_t n = min(sizeof(current_text) - 1, command.length());
       strncpy(current_text, command.c_str(), n);
       current_text[n] = '\0';
-      text_changed = true;
     }
     break;
 
-  case '\0': /* Unknown command */
   default:
-    Serial.print("ERR: ");
-    Serial.println(command_code);
-    Serial.flush();
-    return;
+    result = false;
+    break;
   }
 
-  Serial.println("ACK");
+  if (result) {
+    text_changed = true;
+    Serial.println(F("ACK"));
+  } else {
+    Serial.print(F("ERR"));
+  }
+
   Serial.flush();
+  command = F("");
+}
+
+/******************************************************************************/
+void setup() {
+  // Disable the TX/RX LEDs:
+  pinMode(LED_BUILTIN_TX,INPUT);
+  pinMode(LED_BUILTIN_RX,INPUT);
+
+  Serial.begin(9600);
+
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    for(;;) Serial.println(F("SSD1306 allocation failed"));
+  }
+
+  while (!Serial);
+}
+
+/******************************************************************************/
+void loop() {
+  if (Serial.available() > 0) {
+    char c = Serial.read();
+    if (c == '\r') parse_command();
+    else if (c != 0 && c != '\n') command += c;
+  }
+
+  if (current_flash > 0) {
+    if (millis() >= next_display_change) {
+      current_display_mode = !current_display_mode;
+      next_display_change = millis() + current_flash;
+    }
+  }
+
+  if (current_display_mode) {
+    if (text_changed) {
+      draw();
+      text_changed = false;
+    }
+  } else {
+    display.clearDisplay();
+    display.display();
+    text_changed = true;
+  }
 }

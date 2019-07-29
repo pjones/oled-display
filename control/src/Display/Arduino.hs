@@ -21,6 +21,7 @@ License: BSD-2-Clause
 -}
 module Display.Arduino
   ( Arduino
+  , HasArduino(arduino)
   , new
   , run
   , message
@@ -36,6 +37,7 @@ import Control.Exception (bracket)
 import Control.Lens (view)
 import Control.Lens.TH (makeClassy)
 import Control.Monad (forever, unless)
+import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
 import Control.Monad.STM (atomically)
@@ -44,11 +46,11 @@ import Data.ByteString.Builder (Builder)
 import qualified Data.ByteString.Builder as Builder
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as ByteString
+import qualified Data.ByteString.Lazy as LBS
 import Data.Char (isPrint, isAscii)
 import Data.Time.Clock (UTCTime(..), getCurrentTime)
-import System.IO (Handle, hClose, hFlush)
-import System.Serial (openSerial)
-import qualified System.Serial as Serial
+import System.Hardware.Serialport (SerialPort)
+import qualified System.Hardware.Serialport as Serial
 
 --------------------------------------------------------------------------------
 -- Project Imports:
@@ -165,9 +167,17 @@ drawChars chars =
 
 --------------------------------------------------------------------------------
 -- | Send a command to the arduino.
-send :: Handle -> Command -> IO ()
-send h c = Builder.hPutBuilder h (chars <> "\n") >> hFlush h
+send :: SerialPort -> Command -> ExceptT ByteString IO ()
+send port c = do
+    sent <- liftIO (Serial.send port msg)
+
+    unless (sent == ByteString.length msg) $
+      throwError "failed to send entire message"
+
   where
+    msg :: ByteString
+    msg = LBS.toStrict $ Builder.toLazyByteString (chars <> "\n\n\r")
+
     chars :: Builder
     chars = case c of
       Flash n        -> "F" <> Builder.intDec n
@@ -183,35 +193,25 @@ send h c = Builder.hPutBuilder h (chars <> "\n") >> hFlush h
 
 --------------------------------------------------------------------------------
 -- | Read a response from the arduino.
-recv :: Handle -> IO ByteString
-recv h = do
-  msg <- ByteString.hGetLine h
+recv :: SerialPort -> ExceptT ByteString IO ByteString
+recv port = go ""
 
-  if ByteString.null msg
-    then recv h
-    else pure $ ByteString.takeWhile (/= '\r') msg
+  where
+    go :: ByteString -> ExceptT ByteString IO ByteString
+    go msg | ByteString.length msg >= 3 = pure msg
+           | otherwise = do
+               bs <- liftIO (Serial.recv port 6)
+               go (msg <> ByteString.takeWhile isPrint bs)
 
 --------------------------------------------------------------------------------
-arduinoThread :: TQueue Command -> Handle -> IO ()
-arduinoThread commands handle = do
-  putStrLn "waiting for READY from arduino"
-  msg <- recv handle
+arduinoThread :: TQueue Command -> SerialPort -> ExceptT ByteString IO ()
+arduinoThread commands port = forever $ do
+  command <- liftIO (atomically (readTQueue commands))
+  result  <- send port command >> recv port
 
-  unless (msg == "READY") $
-    -- FIXME: Handle this better.
-    error ("expected READY but got " ++ show msg)
-
-  forever $ do
-    command <- atomically (readTQueue commands)
-    putStrLn ("sending command " ++ show command)
-    send handle command
-
-    result <- recv handle
-    putStrLn ("received answer " ++ show result)
-
-    case ByteString.take 3 result of
-      "ACK" -> pure ()
-      _     -> error "arduino responded with an error"
+  case ByteString.take 3 result of
+    "ACK" -> pure ()
+    _     -> throwError ("arduino responded with an error: " <> result)
 
 --------------------------------------------------------------------------------
 new :: (MonadSTM m) => m Arduino
@@ -237,16 +237,19 @@ run = do
   liftIO $ wait t2id
 
   where
+    open :: IO SerialPort
+    open = Serial.openSerial "/dev/ttyACM0"
+             Serial.defaultSerialSettings {Serial.timeout = 10}
+
+    close :: SerialPort -> IO ()
+    close = Serial.closeSerial
+
     t1 :: TQueue Command -> IO ()
     t1 q = do
-      let open = openSerial "/dev/ttyACM0"
-                            Serial.B38400
-                            8
-                            Serial.One
-                            Serial.NoParity
-                            Serial.NoFlowControl
-
-      bracket open hClose (arduinoThread q)
+      result <- bracket open close (runExceptT . arduinoThread q)
+      case result of
+        Right () -> pure () -- Done.
+        Left e   -> print e >> t1 q
 
     t2 :: ReaderT Arduino IO ()
     t2 = forever $ do

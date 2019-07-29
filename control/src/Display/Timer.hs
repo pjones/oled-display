@@ -26,6 +26,7 @@ module Display.Timer
 
 --------------------------------------------------------------------------------
 -- Library Imports:
+import Data.Aeson (ToJSON(..), FromJSON(..))
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as ByteString
 import Data.Time.Calendar (Day(..))
@@ -40,6 +41,12 @@ data Timer
     -- ^ Pomodoro timer started at the given point in time.
 
   deriving Show
+
+instance ToJSON Timer where
+  toJSON (Pomodoro t) = toJSON t
+
+instance FromJSON Timer where
+  parseJSON t = Pomodoro <$> parseJSON t
 
 --------------------------------------------------------------------------------
 -- | Some remaining interval of time.
