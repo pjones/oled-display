@@ -3,13 +3,12 @@ Serial Controlled OLED Display
 
 Two programs in one!
 
-  1) Arduino code to read commands from a serial port and update an
-     OLED display.
+1. Arduino code to read commands from a serial port and update an
+   OLED display.
 
-  2) A Haskell program to display various bits of information on that
-     OLED display via the serial port.  This is the controller program
-     that listens for D-Bus signals and updates the display
-     accordingly.
+2. A Haskell program to display various bits of information on that
+   OLED display via the serial port.  This is the controller program
+   that listens for D-Bus signals and updates the display accordingly.
 
 **NOTE:** Since the controller program uses D-Bus for interprocess
 communication it's likely to only work on Linux.  Patches are welcome.
