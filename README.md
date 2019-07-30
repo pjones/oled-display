@@ -13,6 +13,11 @@ Two programs in one!
 **NOTE:** Since the controller program uses D-Bus for interprocess
 communication it's likely to only work on Linux.  Patches are welcome.
 
+What Does It Look Like?
+-----------------------
+
+![Pomodoro](images/pomodoro-02.jpg)
+
 Building Everything
 -------------------
 
@@ -80,3 +85,6 @@ somewhere?  Perhaps a status bar?
 ```
 curl --silent --unix-socket ~/.display-control.sock 'http://localhost/message' | jq --raw-output
 ```
+
+
+![Status Bar](images/status-01.png)
