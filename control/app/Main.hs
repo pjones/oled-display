@@ -21,10 +21,13 @@ module Main (main) where
 
 --------------------------------------------------------------------------------
 -- Library Imports:
+import Control.Concurrent (myThreadId)
 import Control.Concurrent.Async (async, waitAnyCatchCancel)
+import Control.Exception.Safe (throwTo)
 import Control.Lens.TH (makeLenses)
 import Control.Monad.Reader (runReaderT)
-import System.Exit (die, exitSuccess)
+import System.Exit (ExitCode(..), die, exitSuccess)
+import System.Signal
 
 --------------------------------------------------------------------------------
 -- Project Imports:
@@ -53,6 +56,9 @@ instance HTTP.HasHTTP Env where
 -- | Off to the races!
 main :: IO ()
 main = do
+  tid <- myThreadId
+  installHandler sigTERM (const $ throwTo tid ExitSuccess)
+
   env <- Env <$> Arduino.new
              <*> HTTP.new
 

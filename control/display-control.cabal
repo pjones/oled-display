@@ -2,7 +2,7 @@ cabal-version: 2.2
 
 --------------------------------------------------------------------------------
 name:         display-control
-version:      0.1.1.0
+version:      0.1.2.0
 synopsis:     Control an OLED display connected to an Arduino
 license:      BSD-2-Clause
 license-file: LICENSE
@@ -43,8 +43,9 @@ common dependencies
                , stm            >= 2.5  && < 2.6
                , text           >= 1.2  && < 1.3
                , time           >= 1.8  && < 1.9
-               , warp           >= 3.2  && < 3.3
-
+               , warp           >= 3.2  && < 3.4
+               , signal         >= 0.1  && < 0.2
+               , safe-exceptions >= 0.1  && < 0.2
 
 --------------------------------------------------------------------------------
 library
