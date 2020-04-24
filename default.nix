@@ -1,9 +1,11 @@
-{ pkgs ? import <nixpkgs> {}
+{ sources ? import ./nix/sources.nix
+, pkgs ? import sources.nixpkgs {}
+, ghc ? "default"
 }:
 
 let
-  control = import ./control { inherit pkgs; };
+  control = import ./control {
+    inherit sources pkgs ghc;
+  };
 
-in
-
-pkgs.haskell.lib.justStaticExecutables control
+in control.bin

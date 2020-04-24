@@ -1,0 +1,50 @@
+{
+    "ghcide-nix": {
+        "ref": "master",
+        "repo": "https://code.devalot.com/pjones/ghcide-nix.git",
+        "rev": "471990016e47f6eaab5d6aeeb2da6f58aa581bb7",
+        "type": "git"
+    },
+    "niv": {
+        "branch": "master",
+        "description": "Easy dependency management for Nix projects",
+        "homepage": "https://github.com/nmattia/niv",
+        "owner": "nmattia",
+        "repo": "niv",
+        "rev": "f73bf8d584148677b01859677a63191c31911eae",
+        "sha256": "0jlmrx633jvqrqlyhlzpvdrnim128gc81q5psz2lpp2af8p8q9qs",
+        "type": "tarball",
+        "url": "https://github.com/nmattia/niv/archive/f73bf8d584148677b01859677a63191c31911eae.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nix-hs": {
+        "ref": "next",
+        "repo": "https://code.devalot.com/open/nix-hs.git",
+        "rev": "b267b7dff1e83909e537b5e9af7de0975caf112c",
+        "type": "git"
+    },
+    "nixpkgs": {
+        "branch": "nixos-20.03",
+        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
+        "homepage": "https://github.com/NixOS/nixpkgs",
+        "owner": "NixOS",
+        "repo": "nixpkgs-channels",
+        "rev": "95b9c99f6d091273572ff1ec62b97b6ad3f68bdf",
+        "sha256": "1qcwr9binkwfayix88aljwssxi5djkwscx0rnwlk1yp9q60rgp3d",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs-channels/archive/95b9c99f6d091273572ff1ec62b97b6ad3f68bdf.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "ormolu": {
+        "branch": "master",
+        "description": "A formatter for Haskell source code",
+        "homepage": null,
+        "owner": "tweag",
+        "repo": "ormolu",
+        "rev": "840acd908bb69f440a453e96e669dadec9c5ddea",
+        "sha256": "1z6ski6daxd6dc96wz3r05xrf98zf58bisda1wk6hvqf7m0qrf6c",
+        "type": "tarball",
+        "url": "https://github.com/tweag/ormolu/archive/840acd908bb69f440a453e96e669dadec9c5ddea.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    }
+}
