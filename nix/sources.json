@@ -1,10 +1,4 @@
 {
-    "ghcide-nix": {
-        "ref": "master",
-        "repo": "https://code.devalot.com/pjones/ghcide-nix.git",
-        "rev": "471990016e47f6eaab5d6aeeb2da6f58aa581bb7",
-        "type": "git"
-    },
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",
@@ -18,10 +12,16 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nix-hs": {
-        "ref": "next",
-        "repo": "https://code.devalot.com/open/nix-hs.git",
-        "rev": "b267b7dff1e83909e537b5e9af7de0975caf112c",
-        "type": "git"
+        "branch": "master",
+        "description": "Haskell + nixpkgs = nix-hs",
+        "homepage": "",
+        "owner": "pjones",
+        "repo": "nix-hs",
+        "rev": "9c659114a8e86c32fd44cf3aab739a5707a2fdf6",
+        "sha256": "0gprj1fz1sc5xwmhgjdg0hjra69ck2wbmxdqpb1r4hb01x8sxp1h",
+        "type": "tarball",
+        "url": "https://github.com/pjones/nix-hs/archive/9c659114a8e86c32fd44cf3aab739a5707a2fdf6.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
         "branch": "nixos-20.03",
@@ -33,18 +33,6 @@
         "sha256": "1qcwr9binkwfayix88aljwssxi5djkwscx0rnwlk1yp9q60rgp3d",
         "type": "tarball",
         "url": "https://github.com/NixOS/nixpkgs-channels/archive/95b9c99f6d091273572ff1ec62b97b6ad3f68bdf.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "ormolu": {
-        "branch": "master",
-        "description": "A formatter for Haskell source code",
-        "homepage": null,
-        "owner": "tweag",
-        "repo": "ormolu",
-        "rev": "840acd908bb69f440a453e96e669dadec9c5ddea",
-        "sha256": "1z6ski6daxd6dc96wz3r05xrf98zf58bisda1wk6hvqf7m0qrf6c",
-        "type": "tarball",
-        "url": "https://github.com/tweag/ormolu/archive/840acd908bb69f440a453e96e669dadec9c5ddea.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
