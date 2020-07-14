@@ -1,68 +1,71 @@
-cabal-version: 2.2
+cabal-version:      2.2
 
 --------------------------------------------------------------------------------
-name:         display-control
-version:      0.1.2.0
-synopsis:     Control an OLED display connected to an Arduino
-license:      BSD-2-Clause
-license-file: LICENSE
-author:       Peter Jones <pjones@devalot.com>
-maintainer:   Peter Jones <pjones@devalot.com>
-copyright:    Copyright (c) 2019 Peter Jones
+name:               display-control
+version:            0.1.2.0
+synopsis:           Control an OLED display connected to an Arduino
+license:            BSD-2-Clause
+license-file:       LICENSE
+author:             Peter Jones <pjones@devalot.com>
+maintainer:         Peter Jones <pjones@devalot.com>
+copyright:          Copyright (c) 2019,2020 Peter Jones
 
 --------------------------------------------------------------------------------
-extra-source-files:
-  CHANGELOG.md
+extra-source-files: CHANGELOG.md
 
 --------------------------------------------------------------------------------
 common options
   default-language: Haskell2010
-  ghc-options: -Wall
-               -Werror=incomplete-record-updates
-               -Werror=incomplete-uni-patterns
-               -Werror=missing-home-modules
-               -Widentities
-               -Wmissing-export-lists
-               -Wredundant-constraints
+  ghc-options:
+    -Wall -Werror=incomplete-record-updates
+    -Werror=incomplete-uni-patterns -Werror=missing-home-modules
+    -Widentities -Wmissing-export-lists -Wredundant-constraints
 
 --------------------------------------------------------------------------------
 common dependencies
-  build-depends: base           >= 4.9  && < 5.0
-               , aeson          >= 1.3  && < 1.5
-               , async          >= 2.2  && < 2.3
-               , bytestring     >= 0.10 && < 0.11
-               , dbus           >= 1.2  && < 1.3
-               , directory      >= 1.3  && < 1.4
-               , filepath       >= 1.4  && < 1.5
-               , lens           >= 4.0  && < 5.0
-               , monad-stm      >= 0.1  && < 0.2
-               , mtl            >= 2.2  && < 2.3
-               , network        >= 2.8  && < 2.9
-               , serialport     >= 0.4  && < 0.5
-               , servant-server >= 0.15 && < 0.17
-               , stm            >= 2.5  && < 2.6
-               , text           >= 1.2  && < 1.3
-               , time           >= 1.8  && < 1.9
-               , warp           >= 3.2  && < 3.4
-               , signal         >= 0.1  && < 0.2
-               , safe-exceptions >= 0.1  && < 0.2
+  build-depends:
+    , aeson                 >=1.3  && <1.5
+    , async                 ^>=2.2
+    , base                  >=4.9  && <5.0
+    , bytestring            ^>=0.10
+    , dbus                  ^>=1.2
+    , directory             ^>=1.3
+    , filepath              ^>=1.4
+    , lens                  >=4.0  && <5.0
+    , monad-stm             ^>=0.1
+    , mtl                   ^>=2.2
+    , network               ^>=2.8
+    , optparse-applicative  ^>=0.14
+    , relude                >=0.6  && <0.8
+    , safe-exceptions       ^>=0.1
+    , serialport            ^>=0.4
+    , servant               >=0.15 && <0.17
+    , servant-server        >=0.15 && <0.17
+    , signal                ^>=0.1
+    , stm                   ^>=2.5
+    , text                  ^>=1.2
+    , time                  ^>=1.8
+    , warp                  >=3.2  && <3.4
+
+  mixins:
+    base hiding (Prelude),
+    relude (Relude as Prelude)
 
 --------------------------------------------------------------------------------
 library
-  import: options, dependencies
-  hs-source-dirs: src
-
- exposed-modules:
-   Display.Arduino
-   Display.DBus
-   Display.HTTP
-   Display.Message
-   Display.Timer
+  import:          options, dependencies
+  hs-source-dirs:  src
+  exposed-modules:
+    Display.Arduino
+    Display.DBus
+    Display.HTTP
+    Display.Message
+    Display.Timer
 
 --------------------------------------------------------------------------------
 executable display-control
-  import: options, dependencies
+  import:         options, dependencies
   hs-source-dirs: app
-  main-is: Main.hs
-  ghc-options: -threaded
-  build-depends: display-control
+  main-is:        Main.hs
+  ghc-options:    -threaded
+  build-depends:  display-control

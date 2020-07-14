@@ -6,25 +6,21 @@ pkgs.stdenv.mkDerivation {
   src = ./.;
 
   buildInputs = with pkgs; [
-    platformio
+    arduino-core
+    arduino-mk
+    pkgsCross.avr.buildPackages.gcc
+    pkgsCross.avr.buildPackages.binutils
   ];
 
-  # FIXME: This doesn't work because PlatformIO needs a network
-  # connection to download and install atmelvar.
-  buildPhase = ''
-    pio run
-  '';
+  ARDUINO_DIR = "${pkgs.arduino-core}/share/arduino";
+  ARDMK_DIR = toString pkgs.arduino-mk;
 
   installPhase = ''
-    mkdir $out
-    cp .pioenvs/micro/firmware.hex $out/
+    mkdir -p $out/firmware
+    cp build/arduino.hex $out/firmware/
   '';
 
   shellHook = ''
-    upload() {
-      pio run -t upload
-    }
-
     connect() {
       ${pkgs.picocom}/bin/picocom --echo /dev/ttyACM0
     }
