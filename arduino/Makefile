@@ -1,7 +1,8 @@
 BOARD_TAG     = micro
 MONITOR_PORT  = /dev/ttyACM0
-ARDUINO_SKETCHBOOK = $(PWD)
+ARDUINO_SKETCHBOOK = $(CURDIR)
 ARDUINO_LIBS  = Wire SPI Adafruit_GFX Adafruit_SSD1306
-OBJDIR = $(PWD)/build
+OBJDIR = $(CURDIR)/build
+TARGET = arduino
 
 include $(ARDMK_DIR)/Arduino.mk
