@@ -32,14 +32,10 @@ import Control.Concurrent.STM.TQueue
 import Control.Exception (bracket)
 import Control.Lens (view)
 import Control.Lens.TH (makeClassy)
-import Control.Monad (forever, unless)
-import Control.Monad.Except (ExceptT, runExceptT, throwError)
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
+import Control.Monad.Except (throwError)
 import Control.Monad.STM.Class (MonadSTM, liftSTM)
 import Data.ByteString.Builder (Builder)
 import qualified Data.ByteString.Builder as Builder
-import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as ByteString
 import qualified Data.ByteString.Lazy as LBS
 import Data.Char (isAscii, isPrint)
