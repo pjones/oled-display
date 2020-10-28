@@ -11,9 +11,9 @@ nix-hs {
   enableFullyStaticExecutables = static;
 
   overrides = lib: self: super: {
-    relude =
-      if super ? relude_0_6_0_0
-      then super.relude_0_6_0_0
-      else super.relude;
+    optparse-applicative =
+      if super ? optparse-applicative_0_16_0_0
+      then super.optparse-applicative_0_16_0_0
+      else super.optparse-applicative;
   };
 }

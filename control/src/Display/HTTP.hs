@@ -43,7 +43,7 @@ import Control.Concurrent.Async (async, waitAnyCatchCancel)
 import qualified Control.Concurrent.STM as STM
 import qualified Control.Concurrent.STM.TSem as STM
 import Control.Exception (bracket)
-import Control.Lens ((&), (?~), (^.), view)
+import Control.Lens (view, (?~), (^.))
 import Control.Lens.TH (makeClassy, makeLenses)
 import Control.Monad.STM.Class (MonadSTM, liftSTM)
 import qualified Data.Aeson as Aeson
@@ -54,14 +54,13 @@ import Data.Time.Clock (getCurrentTime)
 import Display.Message
 import Display.Timer (Timer)
 import qualified Display.Timer as Timer
-import GHC.Generics (Generic)
 import qualified Network.Socket as Network
 import Network.Wai.Handler.Warp (defaultSettings, runSettingsSocket)
 import Servant
 import qualified Servant.Types.SourceT as Servant
 import System.Directory (createDirectoryIfMissing, doesPathExist, getHomeDirectory, removeFile)
 import System.Environment (lookupEnv)
-import System.FilePath ((</>), takeDirectory)
+import System.FilePath (takeDirectory, (</>))
 
 -- | A data store that can be fetched over HTTP.
 data Store = Store
