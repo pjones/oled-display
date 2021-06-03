@@ -23,7 +23,6 @@ module Display.Timer
   )
 where
 
---------------------------------------------------------------------------------
 -- Library Imports:
 import Data.Aeson (FromJSON (..), ToJSON (..))
 import qualified Data.ByteString.Char8 as ByteString
@@ -32,10 +31,8 @@ import Data.Time.Clock (NominalDiffTime, UTCTime (..), addUTCTime, diffUTCTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 
---------------------------------------------------------------------------------
-
 -- | Representation of a timer.
-data Timer
+newtype Timer
   = -- | Pomodoro timer started at the given point in time.
     Pomodoro UTCTime
   deriving (Show)
@@ -45,8 +42,6 @@ instance ToJSON Timer where
 
 instance FromJSON Timer where
   parseJSON t = Pomodoro <$> parseJSON t
-
---------------------------------------------------------------------------------
 
 -- | Some remaining interval of time.
 data Remaining a
@@ -58,24 +53,17 @@ data Remaining a
     Positive a
   deriving (Show, Functor)
 
---------------------------------------------------------------------------------
 extractR :: Remaining a -> a
 extractR (Negative t) = t
 extractR (Positive t) = t
-
---------------------------------------------------------------------------------
 
 -- | Number of seconds in a pomodoro.
 pomodoroSec :: NominalDiffTime
 pomodoroSec = 1500
 
---------------------------------------------------------------------------------
-
 -- | Start a pomodoro given the number of seconds since the Unix epoch.
 pomodoro :: (Real a) => a -> Timer
 pomodoro = Pomodoro . posixSecondsToUTCTime . realToFrac
-
---------------------------------------------------------------------------------
 
 -- | Return the number of remaining seconds in the timer.
 remaining :: Timer -> UTCTime -> Remaining NominalDiffTime
@@ -88,8 +76,6 @@ remaining timer now =
       if diff start > pomodoroSec
         then Negative (diff start - pomodoroSec)
         else Positive (pomodoroSec - diff start)
-
---------------------------------------------------------------------------------
 
 -- | Render the timer as a string.
 render :: Timer -> UTCTime -> ByteString

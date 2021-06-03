@@ -21,8 +21,7 @@ module Main (main) where
 import Control.Concurrent (myThreadId)
 import Control.Concurrent.Async (async, waitAnyCatchCancel)
 import Control.Exception.Safe (throwTo)
-import Control.Lens ((^.), makeLenses)
-import Control.Monad.Reader (runReaderT)
+import Control.Lens (makeLenses, (^.))
 import Display.Arduino (Arduino)
 import qualified Display.Arduino as Arduino
 import qualified Display.DBus as DBus

@@ -59,7 +59,6 @@ import Network.Wai.Handler.Warp (defaultSettings, runSettingsSocket)
 import Servant
 import qualified Servant.Types.SourceT as Servant
 import System.Directory (createDirectoryIfMissing, doesPathExist, getHomeDirectory, removeFile)
-import System.Environment (lookupEnv)
 import System.FilePath (takeDirectory, (</>))
 
 -- | A data store that can be fetched over HTTP.
@@ -177,14 +176,12 @@ streamServer chan =
 
 formatStore :: Store -> IO Text
 formatStore Store {..} = do
-  let desc = maybe [] (one) _msg
+  let desc = maybe [] one _msg
   time <- maybe (pure []) (fmap (\t -> one ("[" <> t <> "]")) . formatTimer) _timer
   pure $ Text.intercalate " " (desc <> time)
   where
     formatTimer :: Timer -> IO Text
-    formatTimer t = do
-      now <- getCurrentTime
-      pure (decodeUtf8 (Timer.render t now))
+    formatTimer t = decodeUtf8 . Timer.render t <$> getCurrentTime
 
 formatThread :: HTTP -> IO ()
 formatThread vars = do
