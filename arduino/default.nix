@@ -2,7 +2,7 @@
 }:
 
 pkgs.stdenv.mkDerivation {
-  name = "display";
+  name = "firmware";
   src = ./.;
 
   buildInputs = with pkgs; [
